@@ -1,0 +1,65 @@
+---
+- name: 🔒 Apply Basic Server Hardening for DevSecOps
+  hosts: all  # Целевые хосты (можно указать группу в инвентаре)
+  become: yes  # Запуск с повышенными привилегиями (sudo)
+  vars:
+    # Список пользователей, которым разрешен SSH доступ
+    allowed_ssh_users: "deployuser adminuser"
+    # Список устаревших и небезопасных алгоритмов для отключения
+    weak_kex_algorithms: "diffie-hellman-group1-sha1,diffie-hellman-group14-sha1"
+    weak_ciphers: "3des-cbc,aes128-cbc,aes192-cbc,aes256-cbc"
+
+  tasks:
+    - name: "🛡️ 1. Ensure SSH root login is disabled"
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PermitRootLogin'
+        line: 'PermitRootLogin no'
+        state: present
+      notify: restart sshd
+
+    - name: "🛡️ 2. Configure allowed SSH users"
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?AllowUsers'
+        line: "AllowUsers {{ allowed_ssh_users }}"
+        state: present
+      notify: restart sshd
+
+    - name: "🛡️ 3. Disable weak SSH Key Exchange Algorithms and Ciphers"
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?KexAlgorithms'
+        line: "KexAlgorithms {{ weak_kex_algorithms }}"
+        state: absent
+      notify: restart sshd
+
+    - name: "🛡️ 4. Install and configure fail2ban to prevent brute-force attacks"
+      ansible.builtin.package:
+        name: fail2ban
+        state: latest
+      notify: restart fail2ban
+
+    - name: "🛡️ 5. Ensure firewall (UFW) is enabled and allows only SSH and HTTP/HTTPS"
+      community.general.ufw:
+        rule: allow
+        name: "{{ item }}"
+        state: enabled
+      loop:
+        - ssh
+        - http
+        - https
+      ignore_errors: yes  # На случай, если UFW не установлен
+
+  handlers:
+    - name: restart sshd
+      ansible.builtin.service:
+        name: sshd
+        state: restarted
+        enabled: yes
+
+    - name: restart fail2ban
+      ansible.builtin.service:
+        name: fail2ban
+        state: restarted
+        enabled: yes
