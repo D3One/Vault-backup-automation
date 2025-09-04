@@ -2,7 +2,9 @@
 
 This repository contains example Ansible playbooks designed to automate security tasks within a DevSecOps pipeline. These playbooks demonstrate how to integrate security checks and hardening procedures into your infrastructure automation process.
 
-<img width="768" height="512" alt="image" src="https://github.com/user-attachments/assets/a5169df1-bb06-42e2-9623-9ce33df20d75" />
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/a5169df1-bb06-42e2-9623-9ce33df20d75" alt="Sublime's custom image"/>
+</p>
 
 ## What is an Ansible Playbook?
 
