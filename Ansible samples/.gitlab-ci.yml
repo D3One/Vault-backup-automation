@@ -1,0 +1,21 @@
+stages:
+  - security check
+
+trivy_scan:
+  stage: security check
+  image: docker:latest
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  services:
+    - docker:dind
+  before_script:
+    - apk add --no-cache ansible=2.14*  # Install Ansible
+  script:
+    - ansible-playbook -i localhost, -c local container-dependency-scan.yml
+  artifacts:
+    when: always
+    paths: # report 
+      - ./*security-scan-report*.txt
+    reports:
+      dotenv: security-scan-report.env
