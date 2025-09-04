@@ -35,7 +35,7 @@ This playbook is designed to run in a CI/CD pipeline and performs security scans
 
 ### 1. Clone the Repository
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/D3One/Vault-backup-automation/tree/main/Ansible%20samples
 cd ansible-devsecops-playbooks
 ```
 
@@ -65,10 +65,10 @@ ansible-playbook -i inventory.ini container-dependency-scan.yml -e "image_name=m
 
 ```yaml
 stages:
-  - security
+  - security check
 
 trivy_scan:
-  stage: security
+  stage: security check
   image: docker:latest
   services:
     - docker:dind
